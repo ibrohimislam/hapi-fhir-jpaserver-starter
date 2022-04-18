@@ -1,15 +1,22 @@
 package ca.uhn.fhir.jpa.starter;
 
+import ca.uhn.fhir.batch2.jobs.config.Batch2JobsConfig;
 import ca.uhn.fhir.jpa.api.config.DaoConfig;
+import ca.uhn.fhir.jpa.batch2.JpaBatch2Config;
 import ca.uhn.fhir.jpa.binstore.DatabaseBlobBinaryStorageSvcImpl;
-import ca.uhn.fhir.jpa.binstore.IBinaryStorageSvc;
+import ca.uhn.fhir.jpa.binary.api.IBinaryStorageSvc;
+import ca.uhn.fhir.jpa.config.HapiJpaConfig;
 import ca.uhn.fhir.jpa.config.HibernatePropertiesProvider;
 import ca.uhn.fhir.jpa.model.config.PartitionSettings;
 import ca.uhn.fhir.jpa.model.config.PartitionSettings.CrossPartitionReferenceMode;
 import ca.uhn.fhir.jpa.model.entity.ModelConfig;
+import ca.uhn.fhir.jpa.subscription.channel.config.SubscriptionChannelConfig;
 import ca.uhn.fhir.jpa.subscription.channel.subscription.SubscriptionDeliveryHandlerFactory;
+import ca.uhn.fhir.jpa.subscription.match.config.SubscriptionProcessorConfig;
+import ca.uhn.fhir.jpa.subscription.match.config.WebsocketDispatcherConfig;
 import ca.uhn.fhir.jpa.subscription.match.deliver.email.EmailSenderImpl;
 import ca.uhn.fhir.jpa.subscription.match.deliver.email.IEmailSender;
+import ca.uhn.fhir.jpa.subscription.submit.config.SubscriptionSubmitterConfig;
 import ca.uhn.fhir.rest.server.mail.IMailSvc;
 import ca.uhn.fhir.rest.server.mail.MailConfig;
 import ca.uhn.fhir.rest.server.mail.MailSvc;
@@ -18,10 +25,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import org.hl7.fhir.dstu2.model.Subscription;
 import org.springframework.boot.env.YamlPropertySourceLoader;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.*;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -30,6 +34,15 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 @Configuration
 @EnableTransactionManagement
+@Import({
+	WebsocketDispatcherConfig.class,
+	SubscriptionChannelConfig.class,
+	SubscriptionProcessorConfig.class,
+	SubscriptionSubmitterConfig.class,
+	JpaBatch2Config.class,
+	Batch2JobsConfig.class,
+	HapiJpaConfig.class
+})
 public class FhirServerConfigCommon {
 
   private static final org.slf4j.Logger ourLog = org.slf4j.LoggerFactory.getLogger(FhirServerConfigCommon.class);
